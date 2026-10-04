@@ -1,0 +1,60 @@
+{
+  "name": "dsh-mission-control",
+  "version": "0.1.0",
+  "description": "Remote mission control for DeepSeek Harness: supervise and steer your agents from a phone.",
+  "license": "MIT",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": { "types": "./lib/types/index.d.ts", "default": "./lib/index.js" },
+    "./package.json": "./package.json"
+  },
+  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } },
+  "files": ["lib", "web-dist", "cordis.patch.yml", "dsh.plugin.json", "README.md"],
+  "scripts": {
+    "build": "node build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "check": "pnpm run typecheck && pnpm run test && pnpm run build"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "*",
+    "@deepseek-ai/dsh-api-session-controller": "*",
+    "@deepseek-ai/dsh-client-connection": "*",
+    "@deepseek-ai/dsh-host-webserver": "*",
+    "@deepseek-ai/dsh-session": "*",
+    "@deepseek-ai/dsh-subagent": "*",
+    "@deepseek-ai/dsh-token-meter": "*",
+    "@deepseek-ai/dsh-user-approval": "*",
+    "@deepseek-ai/dsh-user-questions": "*",
+    "@deepseek-ai/schemastery": "*",
+    "react": "^18.2.0"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/dsh-api-session-controller": { "optional": true },
+    "@deepseek-ai/dsh-client-connection": { "optional": true },
+    "@deepseek-ai/dsh-host-webserver": { "optional": true },
+    "@deepseek-ai/dsh-session": { "optional": true },
+    "@deepseek-ai/dsh-subagent": { "optional": true },
+    "@deepseek-ai/dsh-token-meter": { "optional": true },
+    "@deepseek-ai/dsh-user-approval": { "optional": true },
+    "@deepseek-ai/dsh-user-questions": { "optional": true },
+    "react": { "optional": true }
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": "link:../../deepseek-harness/vendor/cordis",
+    "@deepseek-ai/dsh-api-session-controller": "link:../../deepseek-harness/packages/api/session-controller",
+    "@deepseek-ai/dsh-client-connection": "link:../../deepseek-harness/packages/client/connection",
+    "@deepseek-ai/dsh-host-webserver": "link:../../deepseek-harness/packages/host/webserver",
+    "@deepseek-ai/dsh-session": "link:../../deepseek-harness/packages/core/session",
+    "@deepseek-ai/dsh-subagent": "link:../../deepseek-harness/packages/subagent/subagent",
+    "@deepseek-ai/dsh-token-meter": "link:../../deepseek-harness/packages/llm/token-meter",
+    "@deepseek-ai/dsh-user-approval": "link:../../deepseek-harness/packages/interaction/user-approval",
+    "@deepseek-ai/dsh-user-questions": "link:../../deepseek-harness/packages/interaction/user-questions",
+    "@deepseek-ai/schemastery": "link:../../deepseek-harness/vendor/schemastery",
+    "@types/node": "^24.0.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.8"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "dsh-mission-control",
+  "description": "Remote mission control for DeepSeek Harness",
+  "version": "0.1.0",
+  "entry": { "name": "dsh-mission-control", "inject": ["webServer", "connection"] }
+}
