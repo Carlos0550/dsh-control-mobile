@@ -40,8 +40,9 @@ export function apply(ctx: Context, config: Config): void {
     })
 
     // R23: derive trustedHosts from connection.requestRejection
-    const rejection = (ctx as never as { connection: { requestRejection(request: unknown): number | undefined } }).connection.requestRejection({ headers: { host: config.publicHost } })
-    const trustedHosts = config.publicHost !== '' && rejection !== 403 ? [config.publicHost] : []
+    const trustedHosts = config.publicHost === ''
+      ? []
+      : ((ctx as never as { connection: { requestRejection(request: unknown): number | undefined } }).connection.requestRejection({ headers: { host: config.publicHost } }) !== 403 ? [config.publicHost] : [])
 
     // Build access service
     const access = createAccess({
