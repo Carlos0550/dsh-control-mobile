@@ -86,7 +86,7 @@ export function App() {
         if (!fleet) return <p>Cargando...</p>
         return <Attention items={fleet.attention} onDecide={handleDecide} />
       case 'conversation':
-        return <Conversation />
+        return <Conversation sessionId={sessionId ?? ''} api={api} onBack={() => setView('board')} />
       case 'new':
         return <New />
       case 'access':
