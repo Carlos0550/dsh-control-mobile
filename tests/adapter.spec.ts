@@ -66,6 +66,17 @@ describe('createDshPort', () => {
     expect(await port.startSession('/w', 'hola')).toBe('new-1')
   })
 
+  // R21: startSession returns undefined on harness failure
+  it('startSession devuelve undefined cuando create falla', async () => {
+    const { ctx } = fakeContext({
+      sessionController: {
+        create: async () => { throw new Error('create failed') },
+      },
+    })
+    const port = createDshPort(ctx as never, { titleOf: async () => undefined, contextWindowOf: () => 1_000, hotWindowMs: 300_000 })
+    await expect(port.startSession('/w', 'hola')).resolves.toBeUndefined()
+  })
+
   // R5: cold session must arrive without context
   it('una sesión fría llega sin context', async () => {
     const coldUpdatedAt = Date.now() - 400_000 // older than hotWindowMs (300_000)

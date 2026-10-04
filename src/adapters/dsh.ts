@@ -246,7 +246,7 @@ export function createDshPort(ctx: Context, helpers: DshHelpers): DshPort {
       return sessionId
     } catch (err) {
       console.error('[dsh.adapter] startSession failed:', err)
-      return ''
+      return undefined
     }
   }
 
