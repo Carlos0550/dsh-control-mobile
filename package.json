@@ -25,10 +25,11 @@
     "README.md"
   ],
   "scripts": {
-    "build": "node build.mjs",
+    "build": "node build.mjs && pnpm run build:web",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "check": "pnpm run typecheck && pnpm run test && pnpm run build"
+    "check": "pnpm run typecheck && pnpm run test && pnpm run build",
+    "build:web": "vite build --config web/vite.config.ts"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "*",
@@ -96,6 +97,14 @@
     "esbuild": "^0.25.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.8",
-    "@deepseek-ai/dsh-credentials": "link:../../deepseek-harness/packages/credentials/credentials"
+    "@deepseek-ai/dsh-credentials": "link:../../deepseek-harness/packages/credentials/credentials",
+    "vite": "^8.3.2",
+    "@vitejs/plugin-react": "^6.1.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "jsdom": "^30.1.1",
+    "@testing-library/react": "^16.3.3"
   }
 }
