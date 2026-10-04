@@ -1,4 +1,6 @@
 import type { SessionFacts } from '../types.ts'
+import { credentialKey } from '@deepseek-ai/dsh-credentials'
+import type { CredentialKey } from '@deepseek-ai/dsh-credentials'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -19,6 +21,7 @@ export interface DshPort {
   sendPrompt(sessionId: string, text: string): Promise<void>
   interrupt(sessionId: string): Promise<void>
   modelOf(sessionId: string): Promise<string | undefined>
+  revokeBrowserSessions(): Promise<void>
 }
 
 interface SessionSummary {
@@ -69,11 +72,16 @@ interface WorkspaceRegistry {
   list(): Workspace[]
 }
 
+interface Credentials {
+  deleteRecord(key: CredentialKey): Promise<void>
+}
+
 interface Context {
   sessionController: SessionController
   subagents: Subagents
   tokenMeter: TokenMeter
   workspaceRegistry: WorkspaceRegistry
+  credentials: Credentials
   on(event: 'session/event', handler: (session: { id: string }, event: unknown) => void): () => void
 }
 
@@ -281,6 +289,10 @@ export function createDshPort(ctx: Context, helpers: DshHelpers): DshPort {
     }
   }
 
+  async function revokeBrowserSessions(): Promise<void> {
+    await ctx.credentials.deleteRecord(credentialKey('client-connection', 'browser-session'))
+  }
+
   return {
     facts,
     workspaces,
@@ -290,6 +302,7 @@ export function createDshPort(ctx: Context, helpers: DshHelpers): DshPort {
     sendPrompt,
     interrupt,
     modelOf,
+    revokeBrowserSessions,
   }
 }
 

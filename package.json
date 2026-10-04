@@ -6,11 +6,24 @@
   "type": "module",
   "main": "lib/index.js",
   "exports": {
-    ".": { "types": "./lib/types/index.d.ts", "default": "./lib/index.js" },
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
     "./package.json": "./package.json"
   },
-  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } },
-  "files": ["lib", "web-dist", "cordis.patch.yml", "dsh.plugin.json", "README.md"],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "files": [
+    "lib",
+    "web-dist",
+    "cordis.patch.yml",
+    "dsh.plugin.json",
+    "README.md"
+  ],
   "scripts": {
     "build": "node build.mjs",
     "typecheck": "tsc --noEmit",
@@ -29,19 +42,43 @@
     "@deepseek-ai/dsh-user-approval": "*",
     "@deepseek-ai/dsh-user-questions": "*",
     "@deepseek-ai/schemastery": "*",
-    "react": "^18.2.0"
+    "react": "^18.2.0",
+    "@deepseek-ai/dsh-credentials": "*"
   },
   "peerDependenciesMeta": {
-    "@deepseek-ai/dsh-api-session-controller": { "optional": true },
-    "@deepseek-ai/dsh-client-connection": { "optional": true },
-    "@deepseek-ai/dsh-host-webserver": { "optional": true },
-    "@deepseek-ai/dsh-scope": { "optional": true },
-    "@deepseek-ai/dsh-session": { "optional": true },
-    "@deepseek-ai/dsh-subagent": { "optional": true },
-    "@deepseek-ai/dsh-token-meter": { "optional": true },
-    "@deepseek-ai/dsh-user-approval": { "optional": true },
-    "@deepseek-ai/dsh-user-questions": { "optional": true },
-    "react": { "optional": true }
+    "@deepseek-ai/dsh-api-session-controller": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-client-connection": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-host-webserver": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-scope": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-session": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-subagent": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-token-meter": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-user-approval": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-user-questions": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-credentials": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "link:../../deepseek-harness/vendor/cordis",
@@ -58,6 +95,7 @@
     "@types/node": "^24.0.0",
     "esbuild": "^0.25.0",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.8"
+    "vitest": "^4.1.8",
+    "@deepseek-ai/dsh-credentials": "link:../../deepseek-harness/packages/credentials/credentials"
   }
 }

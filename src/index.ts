@@ -7,6 +7,7 @@ import { Config } from './config.ts'
 import { buildFleet } from './fleet.ts'
 import { createHub, createCoalescer } from './live.ts'
 import { createAttention } from './attention.ts'
+import { createAccess } from './access.ts'
 import { createDshHelpers, createDshPort } from './adapters/dsh.ts'
 import { mountGateway } from './gateway.ts'
 
@@ -38,19 +39,28 @@ export function apply(ctx: Context, config: Config): void {
       sessionIdOf: (agent) => port.sessionIdOf(agent as never),
     })
 
-    // R4 / access: config.publicHost already exists in Task 1.
-    // TODO (Task 9): replace literal with createAccess(config.publicHost, ...)
-    const access = { mode: 'loopback' as const, declared: true }
+    // R23: derive trustedHosts from connection.requestRejection
+    const rejection = (ctx as never as { connection: { requestRejection(request: unknown): number | undefined } }).connection.requestRejection({ headers: { host: config.publicHost } })
+    const trustedHosts = config.publicHost !== '' && rejection !== 403 ? [config.publicHost] : []
+
+    // Build access service
+    const access = createAccess({
+      port: (ctx as never as { webServer: { port: number } }).webServer.port,
+      publicHost: config.publicHost,
+      authenticatedUrl: (u: string) => (ctx as never as { connection: { authenticatedUrl(baseUrl: string): string } }).connection.authenticatedUrl(u),
+      trustedHosts,
+    })
 
     // Snapshot function shared by gateway and coalescer
     const snapshot = async () => {
       const ac = new AbortController()
       const sessions = await port.facts(ac.signal)
+      const report = access.describe()
       return buildFleet({
         sessions,
         attention,
         workspaces: port.workspaces(),
-        access,
+        access: { mode: report.mode, ...(report.hostname === undefined ? {} : { hostname: report.hostname }), declared: report.declared },
         limit: config.fleetLimit,
         asOf: Date.now(),
       })
@@ -86,6 +96,7 @@ export function apply(ctx: Context, config: Config): void {
       hub,
       snapshot,
       root: (await import('url')).fileURLToPath(new URL('..', import.meta.url)),
+      access,
     })
 
     // Cleanup on unload
