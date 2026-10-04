@@ -87,7 +87,7 @@ export async function* toEntries(
 
 function mapEventToEntry(event: SessionEvent, fallbackSeq: number): TranscriptEntry | null {
   const seq = event.seq
-  const at = seq ?? Date.now()
+  const at = (event as { time?: number }).time ?? Date.now()
 
   if (event.type === 'user/message') {
     const data = event.data as { content: { type: 'text'; text: string }[] }

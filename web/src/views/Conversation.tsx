@@ -17,6 +17,7 @@ export function Conversation({ sessionId, api, onBack }: ConversationProps) {
   const [running, setRunning] = useState(false)
   const [agentInfo, setAgentInfo] = useState<{ model?: string; tokensPerSecond?: number; context?: { used: number; window: number; percent: number } } | null>(null)
   const [loading, setLoading] = useState(true)
+  const [breadcrumb, setBreadcrumb] = useState<{ parent?: string; current: string }>({ current: sessionId.slice(0, 8) })
   const closeRef = useRef<(() => void) | null>(null)
 
   useEffect(() => {
@@ -24,7 +25,6 @@ export function Conversation({ sessionId, api, onBack }: ConversationProps) {
       const e = entry as TranscriptEntry
       setLoading(false)
       setEntries(prev => {
-        // If streaming and last entry is also assistant, append
         if (e.streaming && prev.length > 0) {
           const last = prev[prev.length - 1]
           if (last !== undefined && last.streaming) {
@@ -40,16 +40,21 @@ export function Conversation({ sessionId, api, onBack }: ConversationProps) {
     })
     closeRef.current = close
 
-    // Track running state from fleet
     api.fleet().then(f => {
       const agent = f.agents.find(a => a.sessionId === sessionId)
       if (agent) {
         setRunning(agent.state === 'running')
         setAgentInfo({
-        ...(agent.model === undefined ? {} : { model: agent.model }),
-        ...(agent.metrics.tokensPerSecond === undefined ? {} : { tokensPerSecond: agent.metrics.tokensPerSecond }),
-        ...(agent.metrics.context === undefined ? {} : { context: agent.metrics.context }),
-      })
+          ...(agent.model === undefined ? {} : { model: agent.model }),
+          ...(agent.metrics.tokensPerSecond === undefined ? {} : { tokensPerSecond: agent.metrics.tokensPerSecond }),
+          ...(agent.metrics.context === undefined ? {} : { context: agent.metrics.context }),
+        })
+        if (agent.parentSessionId) {
+          const parent = f.agents.find(a => a.sessionId === agent.parentSessionId)
+          setBreadcrumb({ parent: parent?.title ?? agent.parentSessionId.slice(0, 8), current: agent.title })
+        } else {
+          setBreadcrumb({ current: agent.title })
+        }
       }
     }).catch(() => {})
 
@@ -86,7 +91,7 @@ export function Conversation({ sessionId, api, onBack }: ConversationProps) {
   return (
     <div className="conversation">
       <div className="conversation-header">
-        <button className="conversation-back" onClick={onBack}>‹ padre</button>
+        <button className="conversation-back" onClick={onBack}>‹ {breadcrumb.parent ? breadcrumb.parent + ' / ' : ''}{breadcrumb.current}</button>
         {agentInfo && (
           <MetricStrip agent={{
             sessionId,
