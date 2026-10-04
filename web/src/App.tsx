@@ -77,6 +77,13 @@ export function App() {
     setFleet(prev => prev ? { ...prev, attention: items } : prev)
   }
 
+  const handleStart = async (workspace: string, prompt: string) => {
+    await api.start(workspace, prompt)
+    const f = await api.fleet()
+    setFleet(f)
+    setView('board')
+  }
+
   const renderView = (): JSX.Element => {
     switch (view) {
       case 'board':
@@ -88,9 +95,9 @@ export function App() {
       case 'conversation':
         return <Conversation sessionId={sessionId ?? ''} api={api} onBack={() => setView('board')} />
       case 'new':
-        return <New />
+        return <New workspaces={fleet?.workspaces ?? []} onStart={handleStart} />
       case 'access':
-        return <Access />
+        return <Access api={api} />
       default:
         return <p>Cargando...</p>
     }
