@@ -6,9 +6,10 @@ interface BoardProps {
   connected?: boolean
   onOpen: (sessionId: string) => void
   onOpenAttention: () => void
+  onNew?: () => void
 }
 
-export function Board({ fleet, connected = true, onOpen, onOpenAttention }: BoardProps) {
+export function Board({ fleet, connected = true, onOpen, onOpenAttention, onNew }: BoardProps) {
   const running = fleet.agents.filter(a => a.state === 'running').length
   const idle = fleet.agents.filter(a => a.state === 'idle').length
   const waiting = fleet.agents.filter(a => a.state === 'waiting-approval' || a.state === 'waiting-answer').length
@@ -18,13 +19,13 @@ export function Board({ fleet, connected = true, onOpen, onOpenAttention }: Boar
     return (
       <div className="board board--disconnected">
         <div className="board-offline-banner">Sin conexión, reintentando</div>
-        <BoardInner fleet={fleet} running={running} idle={idle} waiting={waiting} error={error} onOpen={onOpen} onOpenAttention={onOpenAttention} />
+        <BoardInner fleet={fleet} running={running} idle={idle} waiting={waiting} error={error} onOpen={onOpen} onOpenAttention={onOpenAttention} onNew={onNew} />
       </div>
     )
   }
 
   return (
-    <BoardInner fleet={fleet} running={running} idle={idle} waiting={waiting} error={error} onOpen={onOpen} onOpenAttention={onOpenAttention} />
+    <BoardInner fleet={fleet} running={running} idle={idle} waiting={waiting} error={error} onOpen={onOpen} onOpenAttention={onOpenAttention} onNew={onNew} />
   )
 }
 
@@ -36,14 +37,15 @@ interface BoardInnerProps {
   error: number
   onOpen: (sessionId: string) => void
   onOpenAttention: () => void
+  onNew: (() => void) | undefined
 }
 
-function BoardInner({ fleet, running, idle, waiting, error, onOpen, onOpenAttention }: BoardInnerProps) {
+function BoardInner({ fleet, running, idle, waiting, error, onOpen, onOpenAttention, onNew }: BoardInnerProps) {
   if (fleet.agents.length === 0) {
     return (
       <div className="board board--empty">
         <p className="board-empty-msg">Nada corriendo</p>
-        <button className="btn-new-agent" onClick={onOpenAttention}>Nuevo</button>
+        <button className="btn-new-agent" onClick={onNew}>Nuevo</button>
       </div>
     )
   }

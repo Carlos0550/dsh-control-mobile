@@ -81,7 +81,7 @@ export function App() {
     switch (view) {
       case 'board':
         if (!fleet) return <p>Cargando...</p>
-        return <Board fleet={fleet} connected={connected} onOpen={handleOpen} onOpenAttention={handleOpenAttention} />
+        return <Board fleet={fleet} connected={connected} onOpen={handleOpen} onOpenAttention={handleOpenAttention} onNew={() => setView('new')} />
       case 'attention':
         if (!fleet) return <p>Cargando...</p>
         return <Attention items={fleet.attention} onDecide={handleDecide} />
