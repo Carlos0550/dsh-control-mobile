@@ -12,10 +12,11 @@ export type View = 'board' | 'attention' | 'conversation' | 'new' | 'access'
 
 const api = createApi()
 
-const TAB_LABELS: Record<View, string> = {
+type TabView = 'board' | 'attention' | 'new' | 'access'
+
+const TAB_LABELS: Record<TabView, string> = {
   board: 'Tablero',
   attention: 'Atención',
-  conversation: 'Nuevo',
   new: 'Nuevo',
   access: 'Acceso',
 }
@@ -109,7 +110,7 @@ export function App() {
         {renderView()}
       </main>
       <nav className="tab-bar">
-        {(['board', 'attention', 'new', 'access'] as View[]).map(tab => (
+        {(['board', 'attention', 'new', 'access'] as TabView[]).map(tab => (
           <button
             key={tab}
             className={'tab ' + (view === tab ? 'tab--active' : '')}

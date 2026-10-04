@@ -58,7 +58,7 @@ export async function* toEntries(
       for (const record of frame.records) {
         if (record.type !== 'event') continue
         const event = record.event
-        const entry = mapEventToEntry(event, seqCounter)
+        const entry = mapEventToEntry(event)
         if (entry) {
           seqCounter++
           yield entry
@@ -85,7 +85,7 @@ export async function* toEntries(
   }
 }
 
-function mapEventToEntry(event: SessionEvent, fallbackSeq: number): TranscriptEntry | null {
+function mapEventToEntry(event: SessionEvent): TranscriptEntry | null {
   const seq = event.seq
   const at = (event as { time?: number }).time ?? Date.now()
 

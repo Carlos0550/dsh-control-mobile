@@ -4,7 +4,7 @@ Remote mission control for [DeepSeek Harness](https://github.com/deepseek-ai/dee
 
 dsh-mission-control is a DSH plugin that adds a mobile-first web UI to a running DeepSeek Harness instance. Once loaded, the bottom tab bar offers four tabs:
 
-- **Board** — live list of all sessions (root agents and sub-agents) with token/s metrics and context usage.
+- **Board** — live list of all sessions (root agents and sub-agents) with context usage and session status; tok/s is not yet emitted by the adapter.
 - **Attention** — pending approval requests that need the operator (v1; question answering and error items are future work).
 - **Nuevo** — start a new session in an existing workspace from scratch.
 - **Access** — diagnosis of the current remote-exposure setup and a QR code to transfer the session to a phone.
@@ -190,6 +190,7 @@ The following capabilities are intentionally out of scope:
 | Background jobs, compaction, model switching | Not requested; add later if needed. |
 | Push notifications | A separate `dsh-notification` plugin covers turn-finished alerts; a cockpit-native notification is future work. |
 | Public quick tunnel without a domain | A 30-day bearer cookie in front of remote code execution requires a controlled entry point. |
+| Live tok/s metric | The adapter does not yet emit a tokens-per-second measurement; context usage is shown instead. |
 | Multi-user / multi-operator | Single-operator design. |
 
 ---

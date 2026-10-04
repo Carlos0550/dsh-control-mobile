@@ -28,24 +28,45 @@ export function Access({ api }: Props) {
   const [qr, setQr] = useState<string | null>(null)
   const [qrError, setQrError] = useState<string | null>(null)
   const [revoked, setRevoked] = useState(false)
+  const [accessError, setAccessError] = useState<string | null>(null)
 
-  useEffect(() => {
+  const loadAccess = () => {
+    setAccessError(null)
     api.access().then(async (i) => {
       setInfo(i)
       if (i.loginUrl) {
         try {
           const url = await QRCode.toDataURL(i.loginUrl)
           setQr(url)
-        } catch {
+        } catch (err) {
+          console.error('[Access] QR generation failed:', err)
           setQrError('No se pudo generar el código QR')
         }
       }
-    }).catch(console.error)
+    }).catch((err) => {
+      console.error('[Access] api.access() failed:', err)
+      setAccessError('No se pudo cargar la información de acceso')
+    })
+  }
+
+  useEffect(() => {
+    loadAccess()
   }, [api])
 
   const handleRevoke = async () => {
     await api.revoke()
     setRevoked(true)
+  }
+
+  if (accessError) {
+    return (
+      <div className="access-view">
+        <p className="qr-error">{accessError}</p>
+        <button className="composer-btn composer-btn--send" onClick={loadAccess}>
+          Reintentar
+        </button>
+      </div>
+    )
   }
 
   if (!info) return <p>Cargando...</p>
