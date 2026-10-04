@@ -10,7 +10,7 @@ export interface MissionApi {
   interrupt(sessionId: string): Promise<{ ok: true }>
   access(): Promise<{ loginUrl?: string; mode: string; hostname?: string; declared: boolean }>
   revoke(): Promise<{ ok: true; restartRequired: true }>
-  openStream(onDelta: (delta: Delta) => void): () => void
+  openStream(onDelta: (delta: Delta) => void, onStatus?: (status: 'open' | 'closed') => void): () => void
 }
 
 /** Create the API client over fetch. */
@@ -32,9 +32,11 @@ export function createApi(fetchImpl: typeof fetch = fetch): MissionApi {
     interrupt: (sessionId) => call('./api/sessions/' + encodeURIComponent(sessionId) + '/interrupt', { method: 'POST' }),
     access: () => call('./api/access'),
     revoke: () => call('./api/security/revoke', { method: 'POST' }),
-    openStream(onDelta) {
+    openStream(onDelta, onStatus) {
       const source = new EventSource('./api/stream')
       source.onmessage = event => { onDelta(JSON.parse(event.data) as Delta) }
+      source.onopen = () => onStatus?.('open')
+      source.onerror = () => onStatus?.('closed')
       return () => { source.close() }
     },
   }
