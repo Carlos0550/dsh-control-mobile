@@ -4,3 +4,5 @@ web-dist/
 .worktrees/
 *.tsbuildinfo
 .DS_Store
+deepseek-harness
+pnpm-lock.yaml
