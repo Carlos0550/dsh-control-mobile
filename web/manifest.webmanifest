@@ -1,0 +1,7 @@
+{
+  "name": "Misión — DSH",
+  "short_name": "Misión",
+  "display": "standalone",
+  "start_url": "./",
+  "scope": "./"
+}

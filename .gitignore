@@ -1,0 +1,9 @@
+node_modules/
+lib/
+web-dist/
+.worktrees/
+*.tsbuildinfo
+.DS_Store
+deepseek-harness
+pnpm-lock.yaml
+.pnpm-store/
