@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import type { AttentionService } from './attention.ts'
 import type { DeltaHub } from './live.ts'
 import type { DshPort } from './adapters/dsh.ts'
+import type { Actions } from './actions.ts'
 import type { AccessService } from './access.ts'
 import type { FleetSnapshot, Delta } from './types.ts'
 import { join, extname } from 'path'
@@ -53,6 +54,7 @@ interface RouteDeps {
   ctx: GatewayContext
   config: { path: string; fleetLimit: number; hotWindowMs: number; publicHost: string }
   port: DshPort
+  actions: Actions
   attention: AttentionService
   hub: DeltaHub
   snapshot(): Promise<FleetSnapshot>
@@ -306,7 +308,7 @@ async function handleApi(req: HttpRequest, res: HttpResponse, deps: RouteDeps): 
           sendJson(res, 400, { error: 'invalid request body' })
           return
         }
-        const sessionId = await deps.port.startSession(body.workspace, body.prompt)
+        const sessionId = await deps.actions.start(body.workspace, body.prompt)
         if (sessionId === undefined) {
           sendJson(res, 502, { error: 'session creation failed' })
           return
@@ -333,11 +335,12 @@ async function handleApi(req: HttpRequest, res: HttpResponse, deps: RouteDeps): 
           sendJson(res, 400, { error: 'invalid request body' })
           return
         }
-        await deps.port.sendPrompt(sessionId, body.text)
+        await deps.actions.send(sessionId, body.text)
         sendJson(res, 200, { accepted: true })
         return
-      } catch {
-        sendJson(res, 400, { error: 'invalid request body' })
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : ''
+        sendJson(res, msg === 'empty prompt' ? 400 : 502, { error: msg || 'request failed' })
         return
       }
     }
@@ -347,7 +350,7 @@ async function handleApi(req: HttpRequest, res: HttpResponse, deps: RouteDeps): 
     if (interruptMatch) {
       const id = interruptMatch['id']
       if (id !== undefined) {
-        await deps.port.interrupt(id)
+        await deps.actions.interrupt(id)
       }
       sendJson(res, 200, { ok: true })
       return

@@ -9,6 +9,7 @@ import { createHub, createCoalescer } from './live.ts'
 import { createAttention } from './attention.ts'
 import { createAccess } from './access.ts'
 import { createDshHelpers, createDshPort } from './adapters/dsh.ts'
+import { createActions } from './actions.ts'
 import { mountGateway } from './gateway.ts'
 
 export { Config, type Config as MissionControlConfig } from './config.ts'
@@ -89,10 +90,12 @@ export function apply(ctx: Context, config: Config): void {
 
     // Mount attention and gateway
     const unsubscribeAttention = attention.mount(ctx)
+    const actions = createActions(port)
     const unsubscribeGateway = mountGateway({
       ctx: ctx as never,
       config,
       port,
+      actions,
       attention,
       hub,
       snapshot,
