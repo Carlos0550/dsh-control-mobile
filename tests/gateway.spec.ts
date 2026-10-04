@@ -34,6 +34,7 @@ function harness(admission: unknown = { peer: {} }) {
     ctx: ctx as never,
     config: { path: '/mission', fleetLimit: 200, hotWindowMs: 300_000, publicHost: '' },
     port: {} as never,
+    actions: { start: async () => undefined, send: async () => {}, interrupt: async () => {} } as never,
     attention: { list: () => [], count: () => 0, decide: () => false, mount: () => () => {}, hold: async () => 'unavailable' },
     hub: { subscribe: (l: (d: Delta) => void) => { deltas.push(l); return () => {} }, publish: () => {}, subscribers: () => 1 },
     snapshot: async () => ({ asOf: 1, agents: [], attention: [], workspaces: [], truncated: false, access: { mode: 'loopback', declared: true } }),
