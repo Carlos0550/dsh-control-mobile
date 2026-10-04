@@ -5,7 +5,7 @@ Remote mission control for [DeepSeek Harness](https://github.com/deepseek-ai/dee
 dsh-mission-control is a DSH plugin that adds a mobile-first web UI to a running DeepSeek Harness instance. Once loaded, the bottom tab bar offers four tabs:
 
 - **Board** — live list of all sessions (root agents and sub-agents) with token/s metrics and context usage.
-- **Attention** — pending approval requests that need the operator.
+- **Attention** — pending approval requests that need the operator (v1; question answering and error items are future work).
 - **Nuevo** — start a new session in an existing workspace from scratch.
 - **Access** — diagnosis of the current remote-exposure setup and a QR code to transfer the session to a phone.
 
@@ -46,12 +46,13 @@ pnpm pack
 dsh plugin --profile web add ./dsh-mission-control-0.1.0.tgz
 ```
 
-   **Option B — by adding a row to the profile patch** that composes the plugin from the built `lib/index.js`. When the plugin row is present in the patch (see `cordis.patch.yml`), add a line like this to your profile's Cordis configuration:
+   **Option B — by adding a row to the profile patch** that composes the plugin from the built `lib/index.js`. When the plugin row is present in the patch (see `cordis.patch.yml`), add an `insert` entry to your profile's Cordis configuration:
 
 ```yaml
    # ~/.dsh/profiles/web/cordis.yml or equivalent
-   plugins:
-     - dsh-mission-control  # resolved by the bundle patch
+   - insert:
+       - id: dsh-mission-control
+         name: file:///absolute/path/to/dsh-mission-control/lib/index.js
 ```
 
 4. Start (or restart) the web host:

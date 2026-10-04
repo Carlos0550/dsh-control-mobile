@@ -72,7 +72,7 @@ Perform these steps in order. Check each box as you verify it.
 - [ ] Open `https://<pc-hostname>.<tailnet>.ts.net/mission/` in the phone browser.
 - [ ] The session cookie from step 3 is sent automatically (or you are prompted to log in if you cleared it).
 - [ ] Repeat **steps 3 through 6** on the phone:
-  - [ ] Board lists sessions with live tok/s and context.
+  - [ ] Board lists sessions with live tok/s and context (tok/s is only visible while an agent is actively running).
   - [ ] Conversation shows history and live bubbles.
   - [ ] Nuevo creates a session visible on the Board.
   - [ ] Approval cards appear and can be resolved.
