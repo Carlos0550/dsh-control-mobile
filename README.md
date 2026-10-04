@@ -49,7 +49,7 @@ dsh plugin --profile web add ./dsh-mission-control-0.1.0.tgz
    **Option B — by adding a row to the profile patch** that composes the plugin from the built `lib/index.js`. When the plugin row is present in the patch (see `cordis.patch.yml`), add an `insert` entry to your profile's Cordis configuration:
 
 ```yaml
-   # ~/.dsh/profiles/web/cordis.yml or equivalent
+   # ~/.dsh/profiles/web/cordis.patch.yml or equivalent
    - insert:
        - id: dsh-mission-control
          name: file:///absolute/path/to/dsh-mission-control/lib/index.js
