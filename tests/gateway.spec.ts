@@ -38,6 +38,7 @@ function harness(admission: unknown = { peer: {} }) {
     hub: { subscribe: (l: (d: Delta) => void) => { deltas.push(l); return () => {} }, publish: () => {}, subscribers: () => 1 },
     snapshot: async () => ({ asOf: 1, agents: [], attention: [], workspaces: [], truncated: false, access: { mode: 'loopback', declared: true } }),
     root: '/tmp/no-existe',
+    access: { describe: () => ({ mode: 'loopback', declared: true }), loginUrl: () => undefined },
   })
   mounted()
   return { routes, ctx }

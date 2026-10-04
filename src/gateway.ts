@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import type { AttentionService } from './attention.ts'
 import type { DeltaHub } from './live.ts'
 import type { DshPort } from './adapters/dsh.ts'
+import type { AccessService } from './access.ts'
 import type { FleetSnapshot, Delta } from './types.ts'
 import { join, extname } from 'path'
 
@@ -15,10 +16,13 @@ interface WebServer {
     path: string
     handler: (req: HttpRequest, res: HttpResponse) => void | Promise<void>
   }): () => void
+  port: number
 }
 
 interface Connection {
   admit(request: unknown): { peer: unknown } | { rejection: number }
+  authenticatedUrl(baseUrl: string): string
+  requestRejection(request: unknown): number | undefined
 }
 
 interface GatewayContext {
@@ -53,6 +57,7 @@ interface RouteDeps {
   hub: DeltaHub
   snapshot(): Promise<FleetSnapshot>
   root: string
+  access: AccessService
 }
 
 // ---------------------------------------------------------------------------
@@ -173,11 +178,11 @@ function writeEventStream(res: HttpResponse, deps: RouteDeps): void {
   })
 
   const unsubscribe = deps.hub.subscribe((delta: Delta) => {
-    res.write(`data: ${JSON.stringify(delta)}\\n\\n`)
+    res.write(`data: ${JSON.stringify(delta)}\n\n`)
   })
 
   const heartbeat = setInterval(() => {
-    res.write(`data: ${JSON.stringify({ t: 'heartbeat', at: Date.now() })}\\n\\n`)
+    res.write(`data: ${JSON.stringify({ t: 'heartbeat', at: Date.now() })}\n\n`)
   }, 20_000)
 
   const onClose = (): void => {
@@ -186,6 +191,23 @@ function writeEventStream(res: HttpResponse, deps: RouteDeps): void {
   }
 
   res.on('close', onClose)
+}
+
+// ---------------------------------------------------------------------------
+// Loopback detection
+// ---------------------------------------------------------------------------
+
+function isLoopback(req: HttpRequest): boolean {
+  const addr = req.socket?.remoteAddress
+  const isAddrLoopback = addr === '127.0.0.1' || addr === '::1' || addr === '::ffff:127.0.0.1'
+  if (!isAddrLoopback) return false
+  // Check Host header is also loopback
+  const hostHeader = req.headers?.host
+  const host = Array.isArray(hostHeader) ? hostHeader[0] : hostHeader
+  if (host === undefined) return false
+  const [hostName] = host.split(':')
+  const hostLoopback = hostName === 'localhost' || hostName === '127.0.0.1' || hostName === '[::1]'
+  return hostLoopback
 }
 
 // ---------------------------------------------------------------------------
@@ -220,6 +242,24 @@ async function handleApi(req: HttpRequest, res: HttpResponse, deps: RouteDeps): 
   }
 
   const method = req.method ?? 'GET'
+
+  // GET /api/access
+  if (method === 'GET' && apiPath === '/access') {
+    const report = deps.access.describe()
+    sendJson(res, 200, {
+      ...report,
+      tokenUrlAvailable: true,
+      loginUrl: deps.access.loginUrl(isLoopback(req)),
+    })
+    return
+  }
+
+  // POST /api/security/revoke
+  if (method === 'POST' && apiPath === '/security/revoke') {
+    await deps.port.revokeBrowserSessions()
+    sendJson(res, 200, { ok: true, restartRequired: true })
+    return
+  }
 
   // GET /api/fleet
   if (method === 'GET' && apiPath === '/fleet') {
