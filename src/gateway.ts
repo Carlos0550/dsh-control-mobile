@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs'
+import { createConversationStream } from './conversation.ts'
 import type { AttentionService } from './attention.ts'
 import type { DeltaHub } from './live.ts'
 import type { DshPort } from './adapters/dsh.ts'
@@ -363,12 +364,42 @@ async function handleApi(req: HttpRequest, res: HttpResponse, deps: RouteDeps): 
     return
   }
 
-  // GET /api/sessions/:id/stream (not implemented)
+  // GET /api/sessions/:id/stream
   const streamMatch = match('/sessions/:id/stream')
   if (streamMatch) {
-    sendJson(res, 501, { error: 'conversation stream not implemented' })
+    const id = streamMatch['id']
+    if (id === undefined) {
+      sendJson(res, 400, { error: 'missing session id' })
+      return
+    }
+
+    res.writeHead(200, {
+      'content-type': 'text/event-stream',
+      'cache-control': 'no-cache',
+      'connection': 'keep-alive',
+      'x-accel-buffering': 'no',
+    })
+
+    const controller = new AbortController()
+
+    ;(async () => {
+      try {
+        for await (const entry of createConversationStream(deps.port, id, controller.signal)) {
+          res.write('event: transcript\ndata: ' + JSON.stringify({ t: 'transcript.append', sessionId: id, entry }) + '\n\n')
+        }
+      } catch {
+        // stream ended or error
+      } finally {
+        res.end()
+      }
+    })()
+
+    req.on('close', () => {
+      controller.abort()
+    })
     return
   }
+
 
   // 404 for unknown API routes
   sendJson(res, 404, { error: 'not found' })

@@ -22,6 +22,7 @@ export interface DshPort {
   interrupt(sessionId: string): Promise<void>
   modelOf(sessionId: string): Promise<string | undefined>
   revokeBrowserSessions(): Promise<void>
+  follow(sessionId: string, signal: AbortSignal): AsyncIterable<unknown>
 }
 
 interface SessionSummary {
@@ -53,7 +54,8 @@ interface SessionController {
     mode: 'queue' | 'steer'
     content: readonly { type: 'text'; text: string }[]
   }, signal?: AbortSignal): Promise<{ accepted: true }>
-  cancel(options: { sessionId: string }, signal?: AbortSignal): Promise<{ cancelled: boolean }>
+  cancel(options: { sessionId: string }, signal?: AbortSignal): Promise<{ cancelled: boolean }>,
+  follow(request: { address: { kind: 'session'; sessionId: string }; assistantStream?: true }, signal: AbortSignal): AsyncIterable<unknown>
 }
 
 interface Subagents {
@@ -289,6 +291,19 @@ export function createDshPort(ctx: Context, helpers: DshHelpers): DshPort {
     }
   }
 
+  function follow(sessionId: string, signal: AbortSignal): AsyncIterable<unknown> {
+    try {
+      return ctx.sessionController.follow(
+        { address: { kind: 'session', sessionId }, assistantStream: true },
+        signal,
+      )
+    } catch {
+      // Return empty async iterable on failure
+      async function* empty(): AsyncIterable<unknown> { }
+      return empty()
+    }
+  }
+
   async function revokeBrowserSessions(): Promise<void> {
     await ctx.credentials.deleteRecord(credentialKey('client-connection', 'browser-session'))
   }
@@ -302,6 +317,7 @@ export function createDshPort(ctx: Context, helpers: DshHelpers): DshPort {
     sendPrompt,
     interrupt,
     modelOf,
+    follow,
     revokeBrowserSessions,
   }
 }
