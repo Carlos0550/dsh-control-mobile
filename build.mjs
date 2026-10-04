@@ -3,7 +3,8 @@ import { build } from 'esbuild'
 await build({
   entryPoints: ['src/index.ts'],
   outfile: 'lib/index.js',
-  bundle: false,
+  bundle: true,
+  packages: 'external',
   format: 'esm',
   platform: 'node',
   target: 'node22',
