@@ -70,7 +70,13 @@ export function createCoalescer(options: {
       while (dirty.size > 0) {
         const batch = new Set(dirty)
         dirty.clear()
-        await options.flush(batch)
+        try {
+          await options.flush(batch)
+        } catch (error) {
+          // One bad batch must not stop the drain loop, nor surface as an unhandled rejection.
+          // The failed ids are dropped, never retried, so a persistent error cannot spin the loop.
+          console.error(`mission-control: coalesced flush failed`, error)
+        }
       }
     } finally {
       running = false
