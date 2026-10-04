@@ -15,7 +15,7 @@ export interface DshPort {
   workspaces(): readonly string[]
   sessionIdOf(agent: { session: { id: string } }): string
   watchSessionEvents(handler: (sessionId: string) => void): () => void
-  startSession(cwd: string, prompt: string): Promise<string>
+  startSession(cwd: string, prompt: string): Promise<string | undefined>
   sendPrompt(sessionId: string, text: string): Promise<void>
   interrupt(sessionId: string): Promise<void>
   modelOf(sessionId: string): Promise<string | undefined>
@@ -239,7 +239,7 @@ export function createDshPort(ctx: Context, helpers: DshHelpers): DshPort {
     return unsubscribe
   }
 
-  async function startSession(cwd: string, prompt: string): Promise<string> {
+  async function startSession(cwd: string, prompt: string): Promise<string | undefined> {
     try {
       const { sessionId } = await ctx.sessionController.create({ cwd })
       await sendPrompt(sessionId, prompt)

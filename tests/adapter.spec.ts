@@ -83,6 +83,30 @@ describe('createDshPort', () => {
     const facts = await port.facts(new AbortController().signal)
     expect(facts[0]?.context).toBeUndefined()
   })
+
+  // Rule 2: listChildren output reaches facts()
+  it('resuelve hijos via listChildren y los incluye en facts', async () => {
+    const { ctx } = fakeContext({
+      subagents: {
+        listChildren: async (parentId: string) => {
+          if (parentId === 's1') {
+            return [{ id: 'grandchild', createdAt: 7, mode: 'continuable', label: 'Nieto' }]
+          }
+          return []
+        },
+      },
+    })
+    const port = createDshPort(ctx as never, { titleOf: async () => undefined, contextWindowOf: () => 1_000, hotWindowMs: 300_000 })
+    const facts = await port.facts(new AbortController().signal)
+    const grandchild = facts.find(f => f.sessionId === 'grandchild')
+    expect(grandchild).toMatchObject({
+      sessionId: 'grandchild',
+      parentSessionId: 's1',
+      kind: 'subagent',
+      title: 'Nieto',
+      agentAvailable: true, // continuable mode
+    })
+  })
 })
 
 describe('createDshHelpers', () => {
