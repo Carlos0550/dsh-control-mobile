@@ -96,9 +96,7 @@ export async function createDshHelpers(
   options: { hotWindowMs: number },
 ): Promise<DshHelpers> {
   const cache = new Map<string, string | undefined>()
-  const tokenMeterCache = new Map<string, number>()
-
-  async function titleOf(sessionId: string): Promise<string | undefined> {
+    async function titleOf(sessionId: string): Promise<string | undefined> {
     if (cache.has(sessionId)) return cache.get(sessionId)
     try {
       const { items } = await ctx.sessionController.list({}, new AbortController().signal)
@@ -113,9 +111,7 @@ export async function createDshHelpers(
     }
   }
 
-  function contextWindowOf(model: string | undefined): number {
-    if (!model) return 0
-    if (tokenMeterCache.has(model)) return tokenMeterCache.get(model)!
+  function contextWindowOf(_model: string | undefined): number {
     return 0 // context window requires live tokenMeter measurement per session
   }
 

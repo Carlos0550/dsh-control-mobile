@@ -33,7 +33,7 @@ Perform these steps in order. Check each box as you verify it.
 - [ ] Restore the session cookie (log in through the harness GUI on the same machine first if needed).
 - [ ] Reload `http://127.0.0.1:3080/mission/`.
 - [ ] The Board tab shows at least one session card.
-- [ ] Each visible session shows **tok/s** (tokens per second, if the agent is running) and **context** (used / window, as a percentage or count).
+- [ ] Each visible session shows **context** (used / window, as a percentage or count) and status (running/idle/waiting/error).
 - [ ] Sub-agents are indented under their parent session.
 
 ---
@@ -72,7 +72,7 @@ Perform these steps in order. Check each box as you verify it.
 - [ ] Open `https://<pc-hostname>.<tailnet>.ts.net/mission/` in the phone browser.
 - [ ] The session cookie from step 3 is sent automatically (or you are prompted to log in if you cleared it).
 - [ ] Repeat **steps 3 through 6** on the phone:
-  - [ ] Board lists sessions with live tok/s and context.
+  - [ ] Board lists sessions with context usage and status.
   - [ ] Conversation shows history and live bubbles.
   - [ ] Nuevo creates a session visible on the Board.
   - [ ] Approval cards appear and can be resolved.
